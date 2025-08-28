@@ -1,0 +1,73 @@
+defaults:
+  - override hydra/job_logging: disabled  # (optional) disable Hydra's default logging
+
+# Data-related settings
+base_dir: "preprocessed_data.zarr"
+
+# Comma-separated list of all models.
+models: "ACCESS-ESM1-5, ACCESS-CM2, GFDL-ESM4, GFDL-CM4, CAS-ESM2-0, MRI-ESM2-0, INM-CM4-8, FGOALS-g3, MIROC6, CanESM5, CanESM5-CanOE, NorESM2-LM, NorESM2-MM, HadGEM3-GC31-LL, UKESM1-1-LL, HadGEM3-GC31-MM, MPI-ESM1-2-HR, CMCC-ESM2, GISS-E2-1-G, IPSL-CM6A-LR" # , CESM2"   # CMCC-ESM2, GISS-E2-1-G
+
+#models: "ACCESS-ESM1-5, ACCESS-CM2, GFDL-ESM4, GFDL-CM4, MRI-ESM2-0, INM-CM4-8, FGOALS-g3, MIROC6, CanESM5, GISS-E2-1-G, NorESM2-LM, NorESM2-MM, CESM2, HadGEM3-GC31-LL, UKESM1-1-LL, CMCC-ESM2, HadGEM3-GC31-MM, MPI-ESM1-2-HR"   # 
+
+# UKESM1-1-LL
+esm_model : "UKESM1-1-LL"
+
+# Comma-separated list of scenarios.
+scenarios: "piControl,historical,ssp126,ssp245,ssp585" # ,historical,ssp126,ssp245,ssp585, GFDL-CM4, 
+
+# Comma-separated list of all x variables.
+x_vars: "tos"
+
+# Selected latitudes for extracting y profiles.
+selected_lats: "26.5" # ,29,31.5,34,36.5,39,41.5,44,46.5
+
+# Specify which version of the x variable to load (e.g., "raw", "LPF24", "LPF120").
+lpf: "LPF120"
+
+noise: 
+
+
+
+# Whether the data is monthly.
+monthly: true
+
+#type of the target (with ekman (y), without ekman trasport (y_no_ekman), or just ekman transport(ekman))
+target_var : "y"
+# Type of output for y variable: "profile" or "max"
+output_type: "max"
+
+# Comma-separated list of models used for validation."ACCESS-ESM1-5, ACCESS-CM2, GFDL-ESM4, GFDL-CM4, INM-CM4-8, FGOALS-g3, MRI-ESM2-0, MIROC6, CanESM5, GISS-E2-1-G, NorESM2-LM, NorESM2-MM, HadGEM3-GC31-LL, UKESM1-1-LL, CMCC-ESM2, HadGEM3-GC31-MM, MPI-ESM1-2-HR"
+val_model: "MRI-ESM2-0, GFDL-ESM4, ACCESS-ESM1-5, MIROC6, NorESM2-MM, UKESM1-1-LL, HadGEM3-GC31-MM, MPI-ESM1-2-HR"   # ACCESS-ESM1-5, GFDL-ESM4, MRI-ESM2-0, NorESM2-MM, GFDL-ESM4, ACCESS-ESM1-5, MIROC6,
+
+# Model architecture and training parameters
+model: "ResidualCNNHet"            # Options: "TwoBranchModel", "SimpleCNN", SimpleViT, ResidualCNN etc.
+
+
+
+model_args:
+  # If your inputs are always [in_ch, 144, 108]:
+  flat_hw: [144, 108]
+  dropout: 0.5
+  sigma_tanh_scale: 8.0
+
+
+weight_decay: 0.01             # Weight decay used in the optimizer
+save_name: "bnn_test_god_bless_it_work_test"  # Base name used to save model weights and results 36_5N_zos_tos_LPF120_test_all_scs_no_CESM_first_members
+linear_activation: false       # Set to true to replace activations with linear (identity) layers
+val_scenario: "historical"      # Validation scenario(s); can be comma-separated if multiple
+
+
+
+training:
+  batch_size: 128
+  epochs: 128
+  mu_epochs: 64            # Stage 1 length (μ-only)
+  learning_rate: 1e-4
+  t0: 256                   # CosineAnnealingWarmRestarts T0 for Stage 2
+  early_stop_patience: 20
+  var_lambda0: 1.0e-3      # λ penalty on logvar
+  var_lambda_tau: 2       # exp decay τ for λ
+
+
+
+
